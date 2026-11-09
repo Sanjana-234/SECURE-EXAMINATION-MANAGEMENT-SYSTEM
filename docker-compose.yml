@@ -1,0 +1,21 @@
+# HTTPS via Caddy (automatic certificates). Copy .env.example to .env and fill it in first.
+services:
+  sems:
+    build: ./server
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SEMS_TRUST_PROXY: "1"        # real client IPs + HSTS; only safe because Caddy is the sole entry point
+    volumes: [sems-data:/data]
+    expose: ["4000"]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [sems]
+    ports: ["80:80", "443:443"]
+    environment:
+      SEMS_DOMAIN: ${SEMS_DOMAIN:?set SEMS_DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+volumes: { sems-data: {}, caddy-data: {} }

@@ -1,0 +1,5 @@
+{$SEMS_DOMAIN} {
+	encode gzip
+	request_body { max_size 9MB }
+	reverse_proxy sems:4000
+}

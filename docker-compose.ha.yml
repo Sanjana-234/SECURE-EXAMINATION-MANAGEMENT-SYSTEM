@@ -1,0 +1,26 @@
+# High-availability profile: 3 app replicas behind Caddy with active health checks (same Docker host).
+# All replicas share ONE local volume: SQLite (WAL) is safe for several processes on one host, NOT over NFS/SMB.
+# Survives: replica crashes, restarts, rolling upgrades. Does NOT survive loss of the host or its disk (see docs/DEPLOYMENT.md).
+x-sems: &sems
+  build: ./server
+  restart: unless-stopped
+  env_file: .env              # identical SEMS_SECRET on every replica is required
+  environment:
+    SEMS_TRUST_PROXY: "1"
+  volumes: [sems-data:/data]
+  expose: ["4000"]
+services:
+  sems-1: *sems
+  sems-2: *sems
+  sems-3: *sems
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [sems-1, sems-2, sems-3]
+    ports: ["80:80", "443:443"]
+    environment:
+      SEMS_DOMAIN: ${SEMS_DOMAIN:?set SEMS_DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile.ha:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+volumes: { sems-data: {}, caddy-data: {} }

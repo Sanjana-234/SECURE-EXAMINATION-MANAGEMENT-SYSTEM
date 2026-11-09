@@ -1,0 +1,21 @@
+{
+  "name": "sems-server",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "seed": "node --disable-warning=ExperimentalWarning src/seed.ts",
+    "backup": "node --disable-warning=ExperimentalWarning src/backup.ts",
+    "coverage": "node --disable-warning=ExperimentalWarning --experimental-test-coverage --test test/*.test.ts",
+    "start": "node --disable-warning=ExperimentalWarning src/main.ts",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
